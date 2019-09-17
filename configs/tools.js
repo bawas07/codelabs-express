@@ -11,28 +11,78 @@ module.exports = function (MODULES, CONSTANTS, callback) {
         let TOOLS = {};
 
         // Initialize application logger
-        let logOpts = {
+        // let logOpts = {
+        //     transports: [
+        //         new (MODULES.WINSTON.transports.Console)({colorize: true}),
+        //         new (MODULES.WINSTON.transports.File)({
+        //             filename: CONSTANTS.PATH.LOG_DEFAULT_PATH,
+        //             handleExceptions: true,
+        //             colorize: true
+        //         })
+        //     ],
+        //     exceptionHandlers: [
+        //         new (MODULES.WINSTON.transports.Console)({colorize: true}),
+        //         new (MODULES.WINSTON.transports.File)({
+        //             filename: CONSTANTS.PATH.LOG_EXCEPTIONS_PATH,
+        //             handleExceptions: true,
+        //             colorize: true
+        //         })
+        //     ]
+        // };
+        const winston = MODULES.WINSTON
+        const tsFormat = () => (new Date()).toLocaleTimeString();
+        const logOpts = {
             transports: [
-                new (MODULES.WINSTON.transports.Console)({colorize: true}),
-                new (MODULES.WINSTON.transports.File)({
-                    filename: CONSTANTS.PATH.LOG_DEFAULT_PATH,
+                new winston.transports.Console({
+                    format: winston.format.combine(
+                        winston.format.prettyPrint(),
+                        winston.format.timestamp(),
+                        winston.format.printf(i => `${i.timestamp} | ${i.message}`)
+                        // winston.format.errors({stack: true})
+                    ),
+                    level: 'debug',
                     handleExceptions: true,
-                    colorize: true
-                })
-            ],
-            exceptionHandlers: [
-                new (MODULES.WINSTON.transports.Console)({colorize: true}),
-                new (MODULES.WINSTON.transports.File)({
+                    // json: false,
+                    // colorize: true,
+                }),
+                new (winston.transports.File)({
                     filename: CONSTANTS.PATH.LOG_EXCEPTIONS_PATH,
+                    timestamp: tsFormat,
                     handleExceptions: true,
-                    colorize: true
-                })
-            ]
+                    colorize: true,
+                    level: 'error',
+                    json: true,
+                    maxsize: 5242880, // 5MB
+                    maxFiles: 10
+                }),
+                // new (winston_daily)({
+                //     filename: CONSTANTS.PATH.LOG_DEFAULT_PATH,
+                //     timestamp: tsFormat,
+                //     handleExceptions: false,
+                //     colorize: true,
+                //     json: true,
+                //     maxsize: 5242880, // 5MB
+                //     maxFiles: 100,
+                //     level: 'info',
+                //     datePattern: 'DD-MM-YYYY',
+                //     prepend: true,
+                //     format: winston.format.combine(
+                //         winston.format.prettyPrint(),
+                //         winston.format.splat(),
+                //         winston.format.timestamp(),
+                //         winston.format.printf(i => {
+                //             return `${i.timestamp} | ${i.message} ${JSON.stringify(i.data)}`;
+                //         }),
+                //     )
+                // })
+            ],
         };
-        TOOLS.LOG = new (MODULES.WINSTON.Logger)(logOpts);
+
+        // TOOLS.LOG = new (MODULES.WINSTON.Logger)(logOpts);
+        TOOLS.LOG = MODULES.WINSTON.createLogger(logOpts)
 
         // Initialize multipart/form-data handler
-        let storage = MODULES.MULTER.diskStorage({
+        const storage = MODULES.MULTER.diskStorage({
             destination: './public/',
             filename: function (req, file, cb) {
                 MODULES.CRYPTO.pseudoRandomBytes(16, function (err, raw) {
