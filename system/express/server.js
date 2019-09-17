@@ -13,7 +13,10 @@ module.exports = function (TOOLS, MODULES, CONSTANTS) {
     APP.use(MODULES.BODY_PARSER.json({ extended: true }));
     APP.use(MODULES.CORS());
     APP.use(MODULES.HELMET());
-    APP.use(MODULES.EXPRESS_LOGGER.create(TOOLS.LOG));
+    // APP.use(MODULES.EXPRESS_LOGGER.create(TOOLS.LOG));
+    const green = '\x1b[32m';
+    const noCollor = '\x1b[0m';
+    APP.use(MODULES.MORGAN((`:date[web] - ${green}info: :method :status path=":url" :response-time ms${noCollor}`)));
     APP.use(MODULES.METHOD_OVERRIDE());
 
     // Make directory '/public' as a static file content

@@ -8,7 +8,7 @@ module.exports = function (MODULES, CONSTANTS, callback) {
     function loadToolsAndDatabase (callback) {
         console.time('Loading app tools and database');
         // Define parameter for initialization
-        let TOOLS = {};
+        const TOOLS = {};
 
         // Initialize application logger
         // let logOpts = {
@@ -29,57 +29,96 @@ module.exports = function (MODULES, CONSTANTS, callback) {
         //         })
         //     ]
         // };
-        const winston = MODULES.WINSTON
-        const tsFormat = () => (new Date()).toLocaleTimeString();
-        const logOpts = {
-            transports: [
-                new winston.transports.Console({
-                    format: winston.format.combine(
-                        winston.format.prettyPrint(),
-                        winston.format.timestamp(),
-                        winston.format.printf(i => `${i.timestamp} | ${i.message}`)
-                        // winston.format.errors({stack: true})
-                    ),
-                    level: 'debug',
-                    handleExceptions: true,
-                    // json: false,
-                    // colorize: true,
-                }),
-                new (winston.transports.File)({
-                    filename: CONSTANTS.PATH.LOG_EXCEPTIONS_PATH,
-                    timestamp: tsFormat,
-                    handleExceptions: true,
-                    colorize: true,
-                    level: 'error',
-                    json: true,
-                    maxsize: 5242880, // 5MB
-                    maxFiles: 10
-                }),
-                // new (winston_daily)({
-                //     filename: CONSTANTS.PATH.LOG_DEFAULT_PATH,
-                //     timestamp: tsFormat,
-                //     handleExceptions: false,
-                //     colorize: true,
-                //     json: true,
-                //     maxsize: 5242880, // 5MB
-                //     maxFiles: 100,
-                //     level: 'info',
-                //     datePattern: 'DD-MM-YYYY',
-                //     prepend: true,
-                //     format: winston.format.combine(
-                //         winston.format.prettyPrint(),
-                //         winston.format.splat(),
-                //         winston.format.timestamp(),
-                //         winston.format.printf(i => {
-                //             return `${i.timestamp} | ${i.message} ${JSON.stringify(i.data)}`;
-                //         }),
-                //     )
-                // })
-            ],
-        };
+        const winston = MODULES.WINSTON;
+        // const currentDate = new Date().toISOString().split(/T/)[0];
+        // const tempPath = CONSTANTS.PATH.LOG_DEFAULT_PATH.split('.log');
+        // const dialyPath = tempPath[0] + '-' + currentDate + '.log';
+        // const tsFormat = () => (new Date()).toLocaleTimeString();
+        // const logOpts = {
+        //     transports: [
+        //         // new winston.transports.Console({
+        //         //     format: winston.format.combine(
+        //         //         winston.format.prettyPrint(),
+        //         //         winston.format.timestamp(),
+        //         //         winston.format.printf(i => `${i.timestamp} | ${i.message}`)
+        //         //         // winston.format.errors({stack: true})
+        //         //     ),
+        //         //     // level: 'debug',
+        //         //     handleExceptions: true,
+        //         //     // json: false,
+        //         //     // colorize: true,
+        //         // }),
+        //         new (winston.transports.File)({
+        //             filename: CONSTANTS.PATH.LOG_EXCEPTIONS_PATH,
+        //             timestamp: tsFormat,
+        //             handleExceptions: true,
+        //             colorize: true,
+        //             level: 'error',
+        //             json: true,
+        //             maxsize: 5242880, // 5MB
+        //             maxFiles: 10
+        //         }),
+        //         new (winston.transports.File)({
+        //             filename: dialyPath,
+        //             timestamp: tsFormat,
+        //             // handleExceptions: true,
+        //             colorize: true,
+        //             // level: 'info',
+        //             json: true,
+        //             maxsize: 5242880, // 5MB
+        //             maxFiles: 10
+        //         })
+        //         // new (winstonDaily)({
+        //         //     filename: dialyPath,
+        //         //     timestamp: true,
+        //         //     handleExceptions: false,
+        //         //     colorize: true,
+        //         //     json: true,
+        //         //     maxsize: 5242880, // 5MB
+        //         //     maxFiles: 100,
+        //         //     level: 'info',
+        //         //     datePattern: 'DD-MM-YYYY',
+        //         //     prepend: true,
+        //         //     // format: winston.format.combine(
+        //         //     //     winston.format.prettyPrint(),
+        //         //     //     winston.format.splat(),
+        //         //     //     winston.format.timestamp(),
+        //         //     //     winston.format.printf(i => {
+        //         //     //         return `${i.timestamp} | ${i.message} ${JSON.stringify(i.data)}`;
+        //         //     //     }),
+        //         //     // )
+        //         // })
+        //     ]
+        // };
 
         // TOOLS.LOG = new (MODULES.WINSTON.Logger)(logOpts);
-        TOOLS.LOG = MODULES.WINSTON.createLogger(logOpts)
+        // TOOLS.LOG = MODULES.WINSTON.createLogger(logOpts)
+        TOOLS.LOG = winston.createLogger({
+            level: 'info',
+            // timestamp: tsFormat,
+            // format: winston.format.json(),
+            format: winston.format.combine(
+                winston.format.printf(i => {
+                    const timestamp = new Date().toISOString();
+                    return `${timestamp}|${JSON.stringify(i)}`;
+                })
+            ),
+            // defaultMeta: { service: 'user-service' },
+            transports: [
+                //
+                // - Write to all logs with level `info` and below to `combined.log`
+                // - Write all logs error (and below) to `error.log`.
+                //
+                new winston.transports.File({ filename: CONSTANTS.PATH.LOG_EXCEPTIONS_PATH, level: 'error', timestamp: true }),
+                new winston.transports.File({ filename: CONSTANTS.PATH.LOG_DEFAULT_PATH, timestamp: true })
+            ]
+        });
+
+        if (process.env.NODE_ENV !== 'production') {
+            TOOLS.LOG.add(new winston.transports.Console({
+                format: winston.format.simple()
+            }));
+        }
 
         // Initialize multipart/form-data handler
         const storage = MODULES.MULTER.diskStorage({
@@ -91,7 +130,7 @@ module.exports = function (MODULES, CONSTANTS, callback) {
             }
         });
 
-        TOOLS.MULTER = MODULES.MULTER({storage: storage});
+        TOOLS.MULTER = MODULES.MULTER({ storage: storage });
 
         // Initialize nodemailer email transporter
         // TOOLS.MAIL_TRANSPORTER = MODULES.NODE_MAILER.createTransport({
@@ -112,7 +151,7 @@ module.exports = function (MODULES, CONSTANTS, callback) {
             passwordField: 'password'
         }, function (email, password, done) {
             // do login with our controllers
-            done(null, {email: email, password: password});
+            done(null, { email: email, password: password });
         }));
 
         // Initialize models (Sequelize)
@@ -140,10 +179,10 @@ module.exports = function (MODULES, CONSTANTS, callback) {
         // require(CONSTANTS.PATH.RABBIT_CLIENT)(TOOLS, MODULES, callback);
     }
 
-    function loadRabbitMQ (tools, callback) {
-        // Initialize Rabbit MQ Client
-        // require(CONSTANTS.PATH.RABBIT_MQ)(tools, MODULES, callback);
-    }
+    // function loadRabbitMQ (tools, callback) {
+    //     // Initialize Rabbit MQ Client
+    //     // require(CONSTANTS.PATH.RABBIT_MQ)(tools, MODULES, callback);
+    // }
 
     function loadApplicationLayer (tools, callback) {
         console.time('Loading services, controllers and interfaces');

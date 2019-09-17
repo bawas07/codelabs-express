@@ -22,6 +22,7 @@ module.exports = {
     MONGOOSE_PAGINATE: require('mongoose-paginate'),
     MONGOOSE_UNIQUE: require('mongoose-unique-validator'),
     MULTER: require('multer'),
+    MORGAN: require('morgan'),
     NODE_MAILER: require('nodemailer'),
     PASSPORT: require('passport'),
     PASSPORT_FACEBOOK: require('passport-facebook-token'),
