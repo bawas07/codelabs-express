@@ -8,10 +8,11 @@ module.exports = function (TOOLS, MODULES, CONSTANTS) {
     console.time('Loading express engine');
 
     // Initialize Express engine
-    let APP = MODULES.EXPRESS();
+    const APP = MODULES.EXPRESS();
     APP.use(MODULES.BODY_PARSER.urlencoded({ extended: false }));
     APP.use(MODULES.BODY_PARSER.json({ extended: true }));
     APP.use(MODULES.CORS());
+    APP.use(MODULES.HELMET());
     APP.use(MODULES.EXPRESS_LOGGER.create(TOOLS.LOG));
     APP.use(MODULES.METHOD_OVERRIDE());
 
@@ -42,7 +43,7 @@ module.exports = function (TOOLS, MODULES, CONSTANTS) {
 
     return new Promise(function (resolve, reject) {
         // Starting the application server
-        let SERVER = APP.listen(process.env.APP_PORT, function () {
+        const SERVER = APP.listen(process.env.APP_PORT, function () {
             console.timeEnd('Loading express engine');
             console.info('Listening on port: ' + SERVER.address().port);
         });

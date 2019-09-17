@@ -14,6 +14,7 @@ module.exports = {
     EXPRESS_LOGGER: require('express-request-logger'),
     FS: require('fs'),
     HTTP: require('http'),
+    HELMET: require('helmet'),
     JWT: require('jsonwebtoken'),
     METHOD_OVERRIDE: require('method-override'),
     MONGOOSE: require('mongoose'),

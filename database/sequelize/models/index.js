@@ -1,16 +1,17 @@
 module.exports = function (MODULES) {
-    let fs = MODULES.FS;
-    let path = MODULES.PATH;
-    let Sequelize = MODULES.SEQUELIZE;
-    let basename = path.basename(module.filename);
-    let db = {};
+    const fs = MODULES.FS;
+    const path = MODULES.PATH;
+    const Sequelize = MODULES.SEQUELIZE;
+    const basename = path.basename(module.filename);
+    const db = {};
 
-    let sequelize = new Sequelize(process.env.MYSQL_URL, {logging: true});
+    // let sequelize = new Sequelize(process.env.MYSQL_URL, {logging: true});
+    const sequelize = new Sequelize(process.env.MYSQL_URL, { logging: console.log });
 
     fs.readdirSync(__dirname).filter(function (file) {
         return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
     }).forEach(function (file) {
-        let model = sequelize['import'](path.join(__dirname, file));
+        const model = sequelize.import(path.join(__dirname, file));
         db[model.name] = model;
     });
 
