@@ -36,7 +36,7 @@ module.exports = {
     WINSTON: require('winston'),
     SEQUELIZE: require('sequelize'),
     AMQPLIB: require('amqplib/callback_api'),
-    JOI: require('joi'),
+    JOI: require('@hapi/joi'),
     FILTER_WORD: require('bad-words'),
     HTTPREQ: require('httpreq')
 };
