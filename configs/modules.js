@@ -22,6 +22,7 @@ module.exports = {
     MONGOOSE_PAGINATE: require('mongoose-paginate'),
     MONGOOSE_UNIQUE: require('mongoose-unique-validator'),
     MULTER: require('multer'),
+    MORGAN: require('morgan'),
     NODE_MAILER: require('nodemailer'),
     PASSPORT: require('passport'),
     PASSPORT_FACEBOOK: require('passport-facebook-token'),
@@ -35,7 +36,7 @@ module.exports = {
     WINSTON: require('winston'),
     SEQUELIZE: require('sequelize'),
     AMQPLIB: require('amqplib/callback_api'),
-    JOI: require('joi'),
+    JOI: require('@hapi/joi'),
     FILTER_WORD: require('bad-words'),
     HTTPREQ: require('httpreq')
 };
